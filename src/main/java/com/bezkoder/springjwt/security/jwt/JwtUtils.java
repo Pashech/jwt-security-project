@@ -24,16 +24,17 @@ public class JwtUtils {
   @Value("${bezkoder.app.jwtExpirationMs}")
   private int jwtExpirationMs;
 
-  public String generateJwtToken(Authentication authentication) {
+  public String generateJwtToken(UserDetailsImpl userPrincipal) {
+    return generateTokenFromUsername(userPrincipal.getUsername());
+  }
 
-    UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
+  public String generateTokenFromUsername(String username){
     return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-        .signWith(key(), SignatureAlgorithm.HS256)
-        .compact();
+            .setSubject(username)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+            .signWith(SignatureAlgorithm.HS256, jwtSecret)
+            .compact();
   }
   
   private Key key() {
